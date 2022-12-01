@@ -1,0 +1,13 @@
+body {
+  width: 600px;
+  min-height: 100vh;
+  margin: 3rem auto;
+  text-align: center;
+}
+
+
+input {
+  width: 100%;
+  padding: 1rem 2rem;
+  margin-bottom: 3rem;
+}
