@@ -38,6 +38,7 @@ h1 {
 
 #myList li {
   display: flex;
+  position: relative;
   align-items: center;
   list-style-type: none;
   word-break: break-word;
@@ -48,6 +49,12 @@ h1 {
   width: 40px;
   height: 40px;
   margin-right: .8rem;
+}
+
+#myList label {
+  width: 100%;
+  display: inline-block;
+  padding: 1rem 0;
 }
 
 #myList span {
@@ -65,4 +72,33 @@ h1 {
 #myList li:hover span {
   opacity: 1;
   transition-duration: .5s;
+}
+
+#myList #editForm {
+  position: absolute;
+  background-color: #fff;
+  z-index: 1;
+}
+
+#myList #editForm {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+#myList #editForm:focus-within {
+  opacity: 1;
+  width: calc(100% - 40px);
+  height: 50%;
+}
+#myList #editForm input {
+  width: 0;
+  height: 0;
+  padding: 0;
+  border: 0;
+}
+#myList #editForm input:focus {
+  width: 100%;
+  height: 100%;
+  padding: 0 1.5rem;
 }
