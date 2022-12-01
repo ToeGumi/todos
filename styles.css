@@ -1,3 +1,9 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
   width: 600px;
   min-height: 100vh;
@@ -13,11 +19,50 @@ h1 {
   color: rgba(175, 47, 47, 0.15);
 }
 
-input {
+#myForm input, #myList li {
   width: 100%;
-  padding: 1rem 2rem;
-  margin-bottom: 3rem;
+  padding: 1rem 1.5rem;
   border: none;
   background: rgba(255, 255, 255, 0.9);
   box-shadow: inset 0 -2px 1px rgb(0 0 0 / 3%);
+}
+
+#myForm input {
+  width: 100%;
+  outline: none;
+}
+
+#myList {
+  text-align: left;
+}
+
+#myList li {
+  display: flex;
+  align-items: center;
+  list-style-type: none;
+  word-break: break-word;
+}
+
+#myList input[type="checkbox"] {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  margin-right: .8rem;
+}
+
+#myList span {
+  opacity: 0;
+  margin-left: auto;
+  color: #b83f457a;
+  cursor: pointer;
+  font-weight: 400;
+}
+
+#myList span:hover{
+  color: #b83f45
+}
+
+#myList li:hover span {
+  opacity: 1;
+  transition-duration: .5s;
 }
