@@ -21,8 +21,10 @@ function add(event) {
 
   let data = new FormData(myForm);
   let title = data.get("title");
+
+  let isDuplicate = todoList.some((a) => a.title === title);
   
-  if (title !== "") {
+  if (title !== "" && !isDuplicate) {
     let todo = {
       title: title,
       completed: false
@@ -36,6 +38,8 @@ function add(event) {
     display(todos);
 
   } else {
+    isDuplicate ?
+    console.log("Duplicated!") :
     console.log("Empty field!");
   }
 }
