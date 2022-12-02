@@ -6,8 +6,12 @@ let todoList = localStorage.getItem("todos") !== null ?
   [];
 let myForm = document.getElementById("myForm");
 let myList = document.getElementById("myList");
-
+let myFilters = document.getElementById("filters");
+let filterInput = document.getElementById("showCompletedTodo");
+let removeCompletedButton = document.getElementById("clearAllCompletedTodo");
 myForm.addEventListener("submit", add);
+filterInput.addEventListener("change", filterCompletedTodo);
+removeCompletedButton.addEventListener("click", removeCompletedTodo);
 
 window.onload = function () { // display view on every load
   display(todoList);
@@ -34,7 +38,8 @@ function add(event) {
     localStorage.setItem('todos', JSON.stringify(todoList));
     
     let todos = JSON.parse(localStorage.getItem('todos'));
-    clear();
+
+    myForm.reset();
     display(todos);
 
   } else {
@@ -58,19 +63,18 @@ function edit(evt) {
  */
 function submitEdit(evt) {
   evt.preventDefault();
-  let editForm = document.getElementById("editForm");
-  let newData = new FormData(editForm);
-  let newTitle = newData.get("newTitle");
+  let form = evt.currentTarget.form;
+  let field = evt.currentTarget.field;
   let todo = {
-    title: newTitle,
+    title: field.value,
     completed: false
   }
   todoList[evt.currentTarget.itemId] = todo;
   localStorage.setItem('todos', JSON.stringify(todoList));
 
   myList.removeChild(evt.currentTarget.myItem);
-  editForm.reset();
-  editForm.firstChild.blur();
+  form.reset();
+  field.blur();
   display(todoList);
 }
 
@@ -85,7 +89,35 @@ function remove(evt) {
   localStorage.setItem('todos', JSON.stringify(todoList));
   myList.removeChild(item);
 
-  clear();
+  myForm.reset();
+  display(todoList);
+}
+
+function toggleCheckbox(e) {
+  let completed = e.currentTarget.checked;
+  let label = e.currentTarget.itemLabel;
+  let id = e.currentTarget.itemId;
+  let todo = {
+    title: label.textContent,
+    completed: completed
+  }
+  todoList[id] = todo;
+  localStorage.setItem('todos', JSON.stringify(todoList));
+  display(todoList);
+}
+
+function filterCompletedTodo(e) {
+  if (e.currentTarget.checked) {
+    let filteredList = todoList.filter((todo) => todo.completed);
+    display(filteredList);
+  } else {
+    display(todoList);
+  }
+}
+
+function removeCompletedTodo() {
+  todoList = todoList.filter(todo => !todo.completed);
+  localStorage.setItem('todos', JSON.stringify(todoList));
   display(todoList);
 }
 
@@ -102,15 +134,22 @@ function createListItem(index, title, completed) {
   let text = document.createTextNode(title);
   let i = document.createElement("i").appendChild(document.createTextNode("X"))
 
-  input.setAttribute("type", "checkbox")
+  input.setAttribute("type", "checkbox");
+  input.addEventListener("change", toggleCheckbox);
+  input.checked = completed;
+  input.itemId = index;
+  input.itemLabel = label;
 
   editField.setAttribute("type", "text");
   editField.setAttribute("name", "newTitle");
+  editField.id = "editField";
   editForm.id = "editForm";
   editForm.appendChild(editField);
   editForm.addEventListener("submit", submitEdit);
   editForm.itemId = index;
   editForm.myItem = li;
+  editForm.form = editForm;
+  editForm.field = editField;
 
   label.appendChild(text);
   label.addEventListener("dblclick", edit);
@@ -131,12 +170,10 @@ function createListItem(index, title, completed) {
   return li;
 }
 
-function clear() {
-  myForm.reset();
-  myList.innerHTML = '';
-}
-
 function display(todos) {
+  myFilters.classList = todos.length === 0 && !filterInput.checked ? "hidden" : "";
+  removeCompletedButton.disabled = todos.every(todo => !todo.completed);
+  myList.innerHTML = '';
   for (let todo of todos) {
     let li = createListItem(todos.indexOf(todo) ,todo.title, todo.completed);
     myList.prepend(li);

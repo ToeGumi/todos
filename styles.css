@@ -19,6 +19,10 @@ h1 {
   color: rgba(175, 47, 47, 0.15);
 }
 
+#myForm, #myList {
+  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+}
+
 #myForm input, #myList li {
   width: 100%;
   padding: 1rem 1.5rem;
@@ -101,4 +105,18 @@ h1 {
   width: 100%;
   height: 100%;
   padding: 0 1.5rem;
+}
+
+#filters {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+}
+#filters.hidden {
+  display: none;
+}
+
+small {
+  display: inline-block;
+  margin-top: 1rem;
 }
