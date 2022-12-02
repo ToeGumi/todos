@@ -6,8 +6,12 @@ let todoList = localStorage.getItem("todos") !== null ?
   [];
 let myForm = document.getElementById("myForm");
 let myList = document.getElementById("myList");
-
+let myFilters = document.getElementById("filters");
+let filterInput = document.getElementById("showCompletedTodo");
+let removeCompletedButton = document.getElementById("clearAllCompletedTodo");
 myForm.addEventListener("submit", add);
+filterInput.addEventListener("change", filterCompletedTodo);
+removeCompletedButton.addEventListener("click", removeCompletedTodo);
 
 window.onload = function () { // display view on every load
   display(todoList);
@@ -20,9 +24,9 @@ function add(event) {
   event.preventDefault();
 
   let data = new FormData(myForm);
-  let title = data.get("title");
+  let title = data.get("title").trim();
 
-  let isDuplicate = todoList.some((a) => a.title === title);
+  let isDuplicate = todoList.some((todo) => todo.title === title);
   
   if (title !== "" && !isDuplicate) {
     let todo = {
@@ -34,7 +38,8 @@ function add(event) {
     localStorage.setItem('todos', JSON.stringify(todoList));
     
     let todos = JSON.parse(localStorage.getItem('todos'));
-    clear();
+
+    myForm.reset();
     display(todos);
 
   } else {
@@ -49,8 +54,8 @@ function add(event) {
  */
 function edit(evt) { 
   let editForm = evt.currentTarget.editForm;
-  editForm.firstChild.value = evt.target.textContent;
-  editForm.firstChild.focus();
+  editForm.firstElementChild.value = evt.target.textContent;
+  editForm.firstElementChild.focus();
 }
 
 /**
@@ -58,20 +63,25 @@ function edit(evt) {
  */
 function submitEdit(evt) {
   evt.preventDefault();
-  let editForm = document.getElementById("editForm");
-  let newData = new FormData(editForm);
-  let newTitle = newData.get("newTitle");
-  let todo = {
-    title: newTitle,
-    completed: false
-  }
-  todoList[evt.currentTarget.itemId] = todo;
-  localStorage.setItem('todos', JSON.stringify(todoList));
+  let form = evt.currentTarget.form;
+  let field = evt.currentTarget.field;
+  let isDuplicate = todoList.some((todo) => todo.title === field.value.trim());
 
-  myList.removeChild(evt.currentTarget.myItem);
-  editForm.reset();
-  editForm.firstChild.blur();
-  display(todoList);
+  if (!isDuplicate) {
+    let todo = {
+      title: field.value,
+      completed: false
+    }
+    todoList[evt.currentTarget.itemId] = todo;
+    localStorage.setItem('todos', JSON.stringify(todoList));
+
+    myList.removeChild(evt.currentTarget.myItem);
+    form.reset();
+    field.blur();
+    display(todoList);
+  } else {
+    console.log("Duplicated");
+  }
 }
 
 /**
@@ -85,7 +95,37 @@ function remove(evt) {
   localStorage.setItem('todos', JSON.stringify(todoList));
   myList.removeChild(item);
 
-  clear();
+  myForm.reset();
+  display(todoList);
+}
+
+function toggleCheckbox(e) {
+  let completed = e.currentTarget.checked;
+  let label = e.currentTarget.itemLabel;
+  let id = e.currentTarget.itemId;
+  let todo = {
+    title: label.textContent,
+    completed: completed
+  }
+  todoList[id] = todo;
+  localStorage.setItem('todos', JSON.stringify(todoList));
+  display(todoList);
+}
+
+function filterCompletedTodo(e) {
+  if (e.currentTarget.checked) {
+    myForm.firstElementChild.disabled = true;
+    let filteredList = todoList.filter((todo) => todo.completed);
+    display(filteredList);
+  } else {
+    myForm.firstElementChild.disabled = false;
+    display(todoList);
+  }
+}
+
+function removeCompletedTodo() {
+  todoList = todoList.filter(todo => !todo.completed);
+  localStorage.setItem('todos', JSON.stringify(todoList));
   display(todoList);
 }
 
@@ -102,15 +142,22 @@ function createListItem(index, title, completed) {
   let text = document.createTextNode(title);
   let i = document.createElement("i").appendChild(document.createTextNode("X"))
 
-  input.setAttribute("type", "checkbox")
+  input.setAttribute("type", "checkbox");
+  input.addEventListener("change", toggleCheckbox);
+  input.checked = completed;
+  input.itemId = index;
+  input.itemLabel = label;
 
   editField.setAttribute("type", "text");
   editField.setAttribute("name", "newTitle");
+  editField.id = "editField";
   editForm.id = "editForm";
   editForm.appendChild(editField);
   editForm.addEventListener("submit", submitEdit);
   editForm.itemId = index;
   editForm.myItem = li;
+  editForm.form = editForm;
+  editForm.field = editField;
 
   label.appendChild(text);
   label.addEventListener("dblclick", edit);
@@ -131,12 +178,10 @@ function createListItem(index, title, completed) {
   return li;
 }
 
-function clear() {
-  myForm.reset();
-  myList.innerHTML = '';
-}
-
 function display(todos) {
+  myFilters.classList = todos.length === 0 && !filterInput.checked ? "hidden" : "";
+  removeCompletedButton.disabled = todos.every(todo => !todo.completed);
+  myList.innerHTML = '';
   for (let todo of todos) {
     let li = createListItem(todos.indexOf(todo) ,todo.title, todo.completed);
     myList.prepend(li);
